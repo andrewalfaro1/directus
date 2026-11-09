@@ -27,11 +27,21 @@ test('openSourceCodeDrawer opens the drawer seeded with the current document HTM
 });
 
 test('openSourceCodeDrawer pretty-prints nested block structure', () => {
-	const { code, openSourceCodeDrawer } = setup('<ul><li><p>one</p></li></ul>');
+	const { code, openSourceCodeDrawer } = setup('<ul><li><p>one</p><ul><li><p>two</p></li></ul></li></ul>');
 
 	openSourceCodeDrawer();
 
-	expect(code.value).toBe(['<ul>', '  <li>', '    <p>one</p>', '  </li>', '</ul>'].join('\n'));
+	expect(code.value).toBe(
+		['<ul>', '  <li>', '    <p>one</p>', '    <ul>', '      <li>two</li>', '    </ul>', '  </li>', '</ul>'].join('\n'),
+	);
+});
+
+test('openSourceCodeDrawer shows the stored form: no lone-paragraph wrapper in items, no trailing paragraph', () => {
+	const { code, openSourceCodeDrawer } = setup('<p>test</p><ul><li><p>1</p></li><li><p>2</p></li></ul>');
+
+	openSourceCodeDrawer();
+
+	expect(code.value).toBe(['<p>test</p>', '<ul>', '  <li>1</li>', '  <li>2</li>', '</ul>'].join('\n'));
 });
 
 test('save with unchanged code leaves the document identical', () => {

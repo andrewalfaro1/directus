@@ -3,6 +3,7 @@ import type { Change } from 'diff';
 import { Ref, ref } from 'vue';
 import { formatHtml } from './format-html';
 import { computeNormalizationDiff } from './normalization-diff';
+import { getStoredHtml } from './stored-html';
 
 type UsableSourceCode = {
 	sourceCodeDrawerOpen: Ref<boolean>;
@@ -36,7 +37,7 @@ export function useSourceCode(editor: Ref<Editor>, extraExtensions: AnyExtension
 
 	// Pretty-print only; an unchanged save re-parses to the same document (see format-html.ts).
 	function openSourceCodeDrawer() {
-		code.value = formatHtml(editor.value.getHTML());
+		code.value = formatHtml(getStoredHtml(editor.value));
 		sourceCodeDrawerOpen.value = true;
 	}
 
