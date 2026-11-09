@@ -6,7 +6,7 @@ import { DOMSerializer } from '@tiptap/pm/model';
  * through `tidyStoredMarkup`. Every site that compares against or produces the stored value must use
  * this rather than `getHTML()`.
  */
-export function getStoredHtml(editor: Pick<Editor, 'schema' | 'state'>): string {
+export function getStoredHtml(editor: Editor): string {
 	const fragment = DOMSerializer.fromSchema(editor.schema).serializeFragment(editor.state.doc.content);
 	const container = document.implementation.createHTMLDocument().createElement('div');
 	container.appendChild(fragment);
@@ -37,9 +37,6 @@ export function tidyStoredMarkup(root: Element) {
 
 function unwrapListItemParagraphs(root: Element) {
 	for (const item of Array.from(root.querySelectorAll('li'))) {
-		const parent = item.parentElement?.tagName;
-		if (parent !== 'UL' && parent !== 'OL') continue;
-
 		const content = significantChildren(item);
 		if (content.length !== 1) continue;
 

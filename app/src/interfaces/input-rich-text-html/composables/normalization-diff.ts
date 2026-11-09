@@ -3,14 +3,14 @@ import { type Change, diffLines } from 'diff';
 import { fieldEditorExtensions } from '../extensions';
 import { decodePageBreaks, encodePageBreaks } from '../extensions/page-break';
 import { formatHtml } from './format-html';
-import { getStoredHtml, tidyStoredMarkup } from './stored-html';
+import { tidyStoredMarkup } from './stored-html';
 
 // Re-parse through the schema exactly as saveSourceCode will, so the diff compares against what
 // actually gets stored. `extraExtensions` is the per-field slice from buildFieldSchema the live
 // editor was built with — without it that markup reads as dropped and falsely trips the warning.
 export function roundTrip(html: string, extraExtensions: AnyExtension[] = []): string {
 	const editor = new Editor({ extensions: fieldEditorExtensions(extraExtensions), content: html });
-	const out = getStoredHtml(editor);
+	const out = editor.getHTML();
 	editor.destroy();
 	return out;
 }
