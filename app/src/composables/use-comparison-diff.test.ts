@@ -5,6 +5,15 @@ import { sanitizeDropsContent, useComparisonDiff } from './use-comparison-diff';
 describe('useComparisonDiff - HTML Diff', () => {
 	const { computeDiff } = useComparisonDiff();
 
+	it('should not detect changes between the wrapped and bare forms of the same list', () => {
+		const baseValue = '<p>test</p><ul><li><p>1</p></li><li><p>2</p></li></ul><p></p>';
+		const incomingValue = '<p>test</p><ul><li>1</li><li>2</li></ul>';
+
+		const changes = computeDiff(baseValue, incomingValue);
+
+		expect(changes.filter((change) => change.added || change.removed)).toEqual([]);
+	});
+
 	it('should not detect changes if the text and formatting are the same', () => {
 		const baseValue = '<p>Hello beautiful world</p>';
 		const incomingValue = '<p>Hello beautiful world</p>';
