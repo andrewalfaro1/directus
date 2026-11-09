@@ -87,3 +87,20 @@ describe('external value sync coalescing', () => {
 		expect(editor.isEmpty).toBe(true);
 	});
 });
+
+describe('stored form', () => {
+	test('an edit emits list items without the lone-paragraph wrapper and no trailing paragraph', async () => {
+		const value = '<p>test</p><ul><li>1</li><li>2</li></ul>';
+		const { wrapper, editor } = await mountWithValue(value);
+
+		// TrailingNode has appended its caret paragraph by now, and ListItem wraps each item's text
+		expect(editor.getHTML()).toBe('<p>test</p><ul><li><p>1</p></li><li><p>2</p></li></ul><p></p>');
+
+		editor.commands.insertContentAt(editor.state.doc.content.size - 1, 'x');
+		editor.commands.undo();
+		await nextTick();
+
+		const emitted = wrapper.emitted('input')!;
+		expect(emitted.at(-1)).toEqual([value]);
+	});
+});

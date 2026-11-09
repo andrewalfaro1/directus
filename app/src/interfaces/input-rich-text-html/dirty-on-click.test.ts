@@ -61,3 +61,36 @@ describe('dirty on click', () => {
 		expect(wrapper.emitted('input')).toBeUndefined();
 	});
 });
+
+/**
+ * List markup stored in any of its forms (TinyMCE's bare `<li>`, or Tiptap's `<li><p>` plus trailing
+ * `<p></p>` saved before the stored form tidied them) must load without dirtying or locking the field.
+ */
+describe('previously stored list markup', () => {
+	const values = [
+		'<p>test</p><ul><li><p>1</p></li><li><p>2</p></li></ul><p></p>',
+		'<p>test</p><ul><li><p>1</p></li><li><p>2</p></li></ul>',
+		'<p>test</p><ul><li>1</li><li>2</li></ul>',
+	];
+
+	test.each(values)('opening and clicking %s emits no input and does not lock', async (value) => {
+		const { wrapper, editor } = await mountWithValue(value);
+
+		click(editor);
+		await nextTick();
+
+		expect(wrapper.emitted('input')).toBeUndefined();
+		expect(wrapper.emitted('readonly')?.at(-1)?.[0] ?? false).toBe(false);
+	});
+
+	test.each(values)('an external change to %s emits no input', async (value) => {
+		const { wrapper } = await mountWithValue('<p>x</p>');
+
+		await wrapper.setProps({ value });
+		await flushPromises();
+		await nextTick();
+		await nextTick();
+
+		expect(wrapper.emitted('input')).toBeUndefined();
+	});
+});
