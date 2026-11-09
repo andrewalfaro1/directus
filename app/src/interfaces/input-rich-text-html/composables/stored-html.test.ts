@@ -1,7 +1,7 @@
 import { Editor } from '@tiptap/core';
 import { describe, expect, test } from 'vitest';
 import { fieldEditorExtensions } from '../extensions';
-import { computeNormalizationDiff, computeValueNormalizationDiff, roundTrip } from './normalization-diff';
+import { computeNormalizationDiff, computeValueNormalizationDiff } from './normalization-diff';
 import { getStoredHtml } from './stored-html';
 
 function stored(html: string): string {
@@ -49,7 +49,7 @@ describe('getStoredHtml', () => {
 			'<ul><li><p>a</p><p>b</p></li></ul>',
 			'<p>a</p><p></p>',
 		]) {
-			expect(roundTrip(html)).toBe(html);
+			expect(stored(html)).toBe(html);
 		}
 	});
 });
