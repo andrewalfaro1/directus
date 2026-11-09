@@ -5,6 +5,7 @@ import { type Editor, EditorContent, useEditor } from '@tiptap/vue-3';
 import { onKeyStroke } from '@vueuse/core';
 import { computed, nextTick, provide, ref, type Ref, toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { getStoredHtml } from './composables/stored-html';
 import { useImage } from './composables/use-image';
 import { useLink } from './composables/use-link';
 import { useMedia } from './composables/use-media';
@@ -203,7 +204,7 @@ const editor = useEditor({
 	},
 	onUpdate: ({ editor }) => {
 		updateCount(editor as Editor);
-		emit('input', editor.isEmpty ? null : encodePageBreaks(editor.getHTML()));
+		emit('input', editor.isEmpty ? null : encodePageBreaks(getStoredHtml(editor as Editor)));
 	},
 });
 
@@ -357,7 +358,7 @@ watch(
 		if (rawMode.value) return;
 		if (!editor.value) return;
 		// compare the encoded (stored) form so a re-emitted page-break marker doesn't look like a change
-		if (encodePageBreaks(editor.value.getHTML()) === props.value) return;
+		if (encodePageBreaks(getStoredHtml(editor.value)) === props.value) return;
 		// the content the notice refers to is gone with the replaced value
 		dismissPasteWarning();
 		syncValue(editor.value, props.value);

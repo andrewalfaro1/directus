@@ -3,20 +3,24 @@ import { type Change, diffLines } from 'diff';
 import { fieldEditorExtensions } from '../extensions';
 import { decodePageBreaks, encodePageBreaks } from '../extensions/page-break';
 import { formatHtml } from './format-html';
+import { getStoredHtml, tidyStoredMarkup } from './stored-html';
 
 // Re-parse through the schema exactly as saveSourceCode will, so the diff compares against what
 // actually gets stored. `extraExtensions` is the per-field slice from buildFieldSchema the live
 // editor was built with — without it that markup reads as dropped and falsely trips the warning.
 export function roundTrip(html: string, extraExtensions: AnyExtension[] = []): string {
 	const editor = new Editor({ extensions: fieldEditorExtensions(extraExtensions), content: html });
-	const out = editor.getHTML();
+	const out = getStoredHtml(editor);
 	editor.destroy();
 	return out;
 }
 
-// a re-parse renders preserved global attributes before a node's own, so attribute order is not stable
-function sortAttributes(html: string): string {
+// A re-parse renders preserved global attributes before a node's own, so attribute order is not stable.
+// Both sides are tidied the way the stored value is, so `<li><p>a</p></li>` against `<li>a</li>` (or a
+// trailing empty paragraph) never reads as a change.
+function canonicalize(html: string): string {
 	const root = new DOMParser().parseFromString(`<body>${html}</body>`, 'text/html').body;
+	tidyStoredMarkup(root);
 
 	for (const el of root.querySelectorAll('*')) {
 		const attributes = Array.from(el.attributes, ({ name, value }) => [name, value] as const);
@@ -32,8 +36,8 @@ function sortAttributes(html: string): string {
 
 // Both sides run through formatHtml so only semantic loss surfaces, never cosmetic reformatting.
 export function diffFormatted(rawBefore: string, rawAfter: string): Change[] | null {
-	const before = formatHtml(sortAttributes(rawBefore));
-	const after = formatHtml(sortAttributes(rawAfter));
+	const before = formatHtml(canonicalize(rawBefore));
+	const after = formatHtml(canonicalize(rawAfter));
 	if (before === after) return null;
 
 	const changes = diffLines(before, after);
