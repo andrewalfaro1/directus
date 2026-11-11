@@ -113,6 +113,8 @@
 	font-display: block;
 }
 
+// MATERIAL_SYMBOLS (@directus/constants), the icon names the API accepts and v-icon renders, is generated from this
+// font when @directus/constants builds, so it doesn't need updating by hand when the font is upgraded
 @font-face {
 	font-weight: 400;
 	font-family: 'Material Symbols';

@@ -22,14 +22,15 @@
 		"dist"
 	],
 	"scripts": {
-		"build": "tsdown src/index.ts --dts",
-		"dev": "tsdown src/index.ts --dts --watch",
+		"build": "node scripts/generate-material-symbols.js && tsdown src/index.ts --dts",
+		"dev": "node scripts/generate-material-symbols.js && tsdown src/index.ts --dts --watch",
 		"test": "vitest run",
 		"test:coverage": "vitest run --coverage"
 	},
 	"devDependencies": {
 		"@directus/tsconfig": "catalog:",
 		"@vitest/coverage-v8": "catalog:",
+		"fontkit": "catalog:",
 		"tsdown": "catalog:",
 		"typescript": "catalog:",
 		"vitest": "catalog:"
